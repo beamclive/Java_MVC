@@ -21,7 +21,7 @@ public class UsuarioDAO implements IUsuarioDAO {
         String createTable = "CREATE TABLE IF NOT EXISTS fatec.usuarios("
                 + "id INT PRIMARY KEY AUTO_INCREMENT, "
                 + "nome VARCHAR(100) NOT NULL, "
-                + "email VARCHAR(100) NOT NULL UNIQUEEsdra, "
+                + "email VARCHAR(100) NOT NULL UNIQUE, "
                 + "senha VARCHAR(100) NOT NULL);";
 
         try (Statement stm = conexao.createStatement()) {
@@ -51,18 +51,49 @@ public class UsuarioDAO implements IUsuarioDAO {
 
     @Override
     public Usuario buscarPorEmail(String email) {
-        // TODO: Buscar usuário em base de dados por e-mail
+        String sql = "SELECT * FROM fatec.usuarios WHERE email = ?";
+        try (PreparedStatement pstmt = conexao.prepareStatement(sql)) {
+            pstmt.setString(1, email);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    Usuario usuario = new Usuario();
+                    usuario.setId(rs.getInt("id"));
+                    usuario.setNome(rs.getString("nome"));
+                    usuario.setEmail(rs.getString("email"));
+                    usuario.setSenha(rs.getString("senha"));
+                    return usuario;
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("Erro ao buscar usuario. Erro: " + e.getLocalizedMessage());
+        }
         return null;
     }
 
     @Override
     public void atualizar(Usuario usuario) {
-        // TODO: Atualizar usuário existente em base de dados
+        String sql = "UPDATE fatec.usuarios SET nome = ?, senha = ? WHERE email = ?";
+    
+        try (PreparedStatement pstmt = conexao.prepareStatement(sql)) {
+            pstmt.setString(1, usuario.getNome());
+            pstmt.setString(2, usuario.getSenha());
+            pstmt.setString(3, usuario.getEmail());
+            pstmt.executeUpdate();
+        } catch (Exception e) {
+            System.out.println("Erro ao atualizar usuario. Erro: " + e.getLocalizedMessage());
+        }
     }
 
     @Override
-    public void exluir(Integer id) {
-        // TODO: Atualizar usuário existente em base de dados
+    public void excluir(Integer id) {
+        String sql = "DELETE FROM fatec.usuarios WHERE id = ?";
+    
+        try (PreparedStatement pstmt = conexao.prepareStatement(sql)) {
+            pstmt.setInt(1, id);
+            pstmt.executeUpdate();
+        } catch (Exception e) {
+            System.out.println("Erro ao excluir usuario. Erro: " + e.getLocalizedMessage());
+        }
     }
 
     @Override
@@ -87,6 +118,12 @@ public class UsuarioDAO implements IUsuarioDAO {
         }
 
         return usuarios;
+    }   
+
+    @Override
+    public void exluir(Integer id) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'exluir'");
     }
 
 }

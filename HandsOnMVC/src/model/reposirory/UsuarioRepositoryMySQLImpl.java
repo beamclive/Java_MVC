@@ -20,8 +20,7 @@ public class UsuarioRepositoryMySQLImpl implements UsuarioRepository {
 
     @Override
     public Usuario buscarPorEmail(String email) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'buscarPorEmail'");
+        return dao.buscarPorEmail(email);
     }
 
     @Override
@@ -31,9 +30,16 @@ public class UsuarioRepositoryMySQLImpl implements UsuarioRepository {
 
     @Override
     public Usuario atualizar(Usuario usuario) {
-        //TODO: Buscar usuario existente e atualizar os dados, persistindo a alteração.
+        // Buscar usuário pelo e-mail
         Usuario usuarioExistente = dao.buscarPorEmail(usuario.getEmail());
-        //TODO: Atualizar o usuario
+        if (usuarioExistente != null) {
+            // Atualizar dados do usuário
+            usuarioExistente.setNome(usuario.getNome());
+            usuarioExistente.setSenha(usuario.getSenha());
+            dao.atualizar(usuarioExistente);    
+            return usuarioExistente;
+        }
+
         return null;
     }
 

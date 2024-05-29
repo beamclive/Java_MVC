@@ -21,7 +21,7 @@ public class MvcApp {
         UsuarioRepository reposirory = new UsuarioRepositoryMySQLImpl(dao);
 
         UsuarioMemoriaRepositoryImpl repo = new UsuarioMemoriaRepositoryImpl();
-        UsuarioService service = new UsuarioService(repo);
+        UsuarioService service = new UsuarioService(reposirory);
         
         /*
          * Utilize as leituras em console se preferir.
@@ -35,22 +35,63 @@ public class MvcApp {
          */
         
 
-        Usuario u1 = new Usuario(null, "Nome", "email@email.com", "123edc");
+        Usuario u1 = new Usuario(null, "Bia", "beatriz@email.com", "12345");
+        service.criar(u1);
 
-         // Chamada do metodo de persistencia
-        // TODO: Descomente o trecho abaixo para persisitir em baco de dados e consulte o banco de dados
-        //service.salvar(u1);
+        // Descomente o trecho abaixo para persisitir em baco de dados e consulte o banco de dados
+        
 
-        //TODO: Criar mais 2 usuarios.
+        // Criar mais 2 usuarios.
 
-        //TODO: Exibir os usuarios cadastrados
+        Usuario u2 = new Usuario(null, "Ana", "ana@email.com", "67891");
+        Usuario u3 = new Usuario(null, "Julia", "ju@email.com", "23456");
 
-        // TODO: Remover o primeiro usuario criado.
+        // Chamada do metodo de persistencia
+        service.criar(u2);
+        service.criar(u3);
 
-        // TODO: Buscar e exibir o segundo usuario criado com base no e-mail
+        // Exibir os usuarios cadastrados
 
-        // TODO: Exibir os usuarios cadastrados
+        System.out.println("Usuários cadastrados:");
+        List<Usuario> usuarios = service.obterTodos();
+        for (Usuario usuario : usuarios) {
+            System.out.println(usuario);
+        }
 
-        // TODO: Altere o repositório MySQL pelo repositório em memória    
+        // Remover o primeiro usuario criado.
+
+        service.excluir(u1.getId());
+
+        // Buscar e exibir o segundo usuario criado com base no e-mail
+
+        Usuario usuarioBuscado = service.obterTodos().stream()
+            .filter(usuario -> usuario.getEmail().equals(u2.getEmail()))
+            .findFirst()
+            .orElse(null);
+        System.out.println("Usuário buscado pelo e-mail: " + usuarioBuscado);
+
+        // Exibir os usuarios cadastrados
+
+        System.out.println("Usuários cadastrados após remoção:");
+        usuarios = service.obterTodos();
+        for (Usuario usuario : usuarios) {
+            System.out.println(usuario);
+        }
+
+        // Altere o repositório MySQL pelo repositório em memória    
+
+        UsuarioRepository memoriaRepository = new UsuarioMemoriaRepositoryImpl();
+        UsuarioService memoriaService = new UsuarioService(memoriaRepository);
+
+        // Salvar os mesmos usuários no repositório em memória
+        memoriaService.criar(u2);
+        memoriaService.criar(u3);
+
+        // Exibir os usuários cadastrados no repositório em memória
+        System.out.println("Usuários cadastrados no repositório em memória:");
+        List<Usuario> memoriaUsuarios = memoriaService.obterTodos();
+        for (Usuario usuario : memoriaUsuarios) {
+            System.out.println(usuario);
+        }
     }
 }
